@@ -5,10 +5,14 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 DATABASE_URL = "sqlite:///./placement_pilot.db"
 
 # Create database engine
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
-)
+engine = create_engine
+DATABASE_URL,
+pool_pre_ping=True
+connect_args={
+
+"ssÏ":True
+}
+
 
 # Create base class for models
 Base = declarative_base()
