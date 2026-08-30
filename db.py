@@ -9,8 +9,9 @@ engine = create_engine
 DATABASE_URL,
 pool_pre_ping=True
 connect_args={
-
-"ssÏ":True
+"ssl":{
+    "ssl":True
+}
 }
 
 
