@@ -1,10 +1,16 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 # Database URL configuration
 DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL and DATABASE_URL.startswith("mysql+mysqldb://"):
+    DATABASE_URL = DATABASE_URL.replace("mysql+mysqldb://", "mysql+pymysql://")
+
 if not DATABASE_URL:
     DATABASE_URL = "sqlite:///./placement_pilot.db"
 
