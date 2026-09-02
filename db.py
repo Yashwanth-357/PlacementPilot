@@ -10,6 +10,10 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL and DATABASE_URL.startswith("mysql+mysqldb://"):
     DATABASE_URL = DATABASE_URL.replace("mysql+mysqldb://", "mysql+pymysql://")
+    if "?" in DATABASE_URL:
+        # PyMySQL expects different SSL parameters than MySQLdb
+        base_url = DATABASE_URL.split("?")[0]
+        DATABASE_URL = base_url + "?ssl_verify_cert=true&ssl_verify_identity=true"
 
 if not DATABASE_URL:
     DATABASE_URL = "sqlite:///./placement_pilot.db"
