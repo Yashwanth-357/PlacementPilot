@@ -16,7 +16,6 @@ def home():
         return redirect("/dashboard")
     return redirect("/login")
 
-
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     db = SessionLocal()
@@ -140,5 +139,11 @@ def history():
         "history.html", user=session["user"], reports=reports
     )
 
+#logout
+@app.route("/logout")
+def logout():
+
+    session.pop("user", None)
+    return redirect("/login")
 if __name__=="__main__":
     app.run(debug=True)
