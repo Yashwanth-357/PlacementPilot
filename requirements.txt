@@ -4,3 +4,4 @@ python-dotenv
 pymysql
 openai
 PyPDF2
+python-docx

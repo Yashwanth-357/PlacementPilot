@@ -4,6 +4,7 @@ import models
 import PyPDF2
 import docx
 import json
+from ai import analyze_resume
 
 app = Flask(__name__)
 app.secret_key = "codemind999"
@@ -129,14 +130,14 @@ def history():
         try:
             pasred_result = json.loads(r.result)
         except:
-            pasred_result = []
+            pasred_result = {}
 
-            pasred_result.append({
-                "resume":r.resume_text,
-                "result":pasred_result
-            })
+        pasesd_report.append({
+            "resume": r.resume_text,
+            "result": pasred_result
+        })
     return render_template(
-        "history.html", user=session["user"], reports=reports
+        "history.html", user=session["user"], reports=pasesd_report
     )
 
 #logout
