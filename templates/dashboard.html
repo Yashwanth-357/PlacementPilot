@@ -1,56 +1,99 @@
 {% extends "base.html" %} {% block content %}
 
-<h2>Welcome, {{user}}</h2>
+<div style="margin-bottom: 40px; text-align: center;">
+    <h2>Welcome, {{user.split('@')[0] if user else user}}</h2>
+    <p class="sub-text" style="font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Let AI chart your career trajectory. Upload your resume and tell us your target role.</p>
+</div>
 
-<div class="card">
-  <h3>Resume Analyser</h3>
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+  <h3 style="margin-top: 0; text-align: center;">Resume Analyzer</h3>
 
-  <form method="POST">
+  <form method="POST" enctype="multipart/form-data">
     <textarea
-      name="resyme"
-      placeholder="Paste your Resume(optional)"
+      name="resume"
+      placeholder="Paste your resume text here (optional if uploading a file)..."
     ></textarea>
-    <p>OR upload file</p>
-    <input type="file" name="file" />
+    
+    <div style="text-align: center; color: var(--text-muted); margin: 5px 0;">
+      <span style="background: var(--bg-dark); padding: 0 10px; font-size: 0.9rem;">OR UPLOAD FILE</span>
+    </div>
+    
+    <input type="file" name="file" accept=".pdf,.docx" />
+    
     <input
       name="role"
-      placeholder="What do you what to become? (e.g Backend Engineer)"
+      placeholder="What is your target role? (e.g. Machine Learning Engineer)"
       required
+      style="margin-top: 10px;"
     />
-    <button type="submit">Analyze</button>
+    <button type="submit" style="margin-top: 20px;">Analyze My Profile</button>
   </form>
 </div>
 
 {% if result %}
-<div class="red">
+<div class="red" style="max-width: 800px; margin: 40px auto 0;">
+  <h2 style="font-size: 1.8rem; margin-top: 0; margin-bottom: 25px; text-align: center;">Analysis Results</h2>
+  
   {% if result.error %}
-  <p style="color: red">Error :{{result.error}}</p>
+  <div style="background: rgba(255, 50, 50, 0.1); border: 1px solid rgba(255, 50, 50, 0.3); padding: 15px; border-radius: 8px; color: #ff6b6b; margin-bottom: 20px;">
+    <strong>Error:</strong> {{result.error}}
+  </div>
   {% endif %}
-  <h3>Skills</h3>
-  <ul>
-    {% for s in result.get("skills", []) %}
-    <li>{{s }}</li>
-    {% endfor %}
-  </ul>
-  <h3>Missing Skills</h3>
-  <ul>
-    {% for s in result.get("missing_skills", []) %}
-    <li>{{s }}</li>
-    {% endfor %}
-  </ul>
-  <h3>Roadmap</h3>
-  <ul>
-    {% for s in result.get("Roadmap", []) %}
-    <li>{{s }}</li>
-    {% endfor %}
-  </ul>
-  <h3>Interview Questions List </h3>
-  <ul>
-    {% for s in result.get("interview_questions", []) %}
-    <li>{{s }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+  
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+    <div>
+      <h3>Current Skills</h3>
+      <div style="background: rgba(0, 0, 0, 0.2); padding: 20px; border-radius: 12px; height: 100%;">
+        <ul>
+          {% for s in result.get("skills", []) %}
+          <li>{{s}}</li>
+          {% else %}
+          <li style="color: var(--text-muted);">No skills detected</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    
+    <div>
+      <h3 style="color: var(--secondary);">Missing Skills</h3>
+      <div style="background: rgba(0, 0, 0, 0.2); padding: 20px; border-radius: 12px; height: 100%;">
+        <ul>
+          {% for s in result.get("missing_skills", []) %}
+          <li>{{s}}</li>
+          {% else %}
+          <li style="color: var(--text-muted);">No missing skills identified</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <div style="margin-top: 30px;">
+    <h3>Recommended Roadmap</h3>
+    <div style="background: rgba(0, 229, 255, 0.03); border: 1px solid rgba(0, 229, 255, 0.1); padding: 20px; border-radius: 12px;">
+      <ul>
+        {% for s in result.get("Roadmap", []) %}
+        <li>{{s}}</li>
+        {% else %}
+        <li style="color: var(--text-muted);">No roadmap provided</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  
+  <div style="margin-top: 30px;">
+    <h3 style="color: #a855f7;">Interview Questions</h3>
+    <div style="background: rgba(168, 85, 247, 0.05); border: 1px solid rgba(168, 85, 247, 0.1); padding: 20px; border-radius: 12px;">
+      <ul>
+        {% for s in result.get("interview_questions", []) %}
+        <li>{{s}}</li>
+        {% else %}
+        <li style="color: var(--text-muted);">No interview questions generated</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
+{% endif %}
 
 {% endblock %}
