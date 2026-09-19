@@ -17,7 +17,7 @@ def home():
     return redirect("/login")
 
 
-@app. route("/signup", methods=["GET", "POST"])
+@app.route("/signup", methods=["GET", "POST"])
 def signup():
     db = SessionLocal()
 
@@ -30,42 +30,44 @@ def signup():
             return "User already exists"
 
         user = models.User(email=email, password=password)
-        db. add(user)
+        db.add(user)
         db.commit()
 
         return redirect("/login")
 
     return render_template("signup.html")
 
-@app. route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-        db = SessionLocal()
+    db = SessionLocal()
 
-        if request.method == "POST":
-            email = request. form.get("email")
-            password = request. form.get("password")
-            user = db.query(models.User).filter_by(email=email, password=password)
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+        user = db.query(models.User).filter_by(
+            email=email, password=password
+        ).first()
 
-            if user:
-                 session["user"] = user.email
-                 return redirect("/dashboard")
-            else:
-                 return "Invalid credentials"
-            return render_template("login.html")
+        if user:
+            session["user"] = user.email
+            return redirect("/dashboard")
+        return "Invalid credentials"
 
-@app. route("/dashboard", methods=["GET", "POST"])
+    return render_template("login.html")
+
+@app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if "user" not in session:
         return redirect("/login")
 
     result = None
     if request.method == "POST":
-        user_goal = request. form.get("role")
-        resume_text = request. form.get("resume")
+        user_goal = request.form.get("role")
+        resume_text = request.form.get("resume")
 
         file = request.files.get("file")
 
-         #file handling
+        # File handling
         if file and file.filename != "":
             if file.filename.endswith(".pdf"):
                 try:
@@ -79,12 +81,64 @@ def dashboard():
 
             elif file.filename.endswith(".docx"):
                     try:
-                        doc = docx.Document(file)
-                        text = ""
-                        for para in doc.paragraphs:
-                            text += para.text + "\n"
-                        resume_text = text
+                            doc = docx.Document(file)
+                            text = ""
+                            for para in doc.paragraphs:
+                                text += para.text + "\n"
+                            resume_text = text
                     except Exception as e:
                         result = {"error": f"Docx error: {str(e)}"}
+
+        if resume_text and user_goal:
+            try:
+                result = analyze_resume(resume_text, user_goal)
+
+                #save to db
+                db = SessionLocal()
+                user = db.query(models.User).filter_by(email=session["user"]).first()
+
+                report = models.Reports(
+                    user_id = user.id,
+                    resume_text = resume_text,
+                    result = json.dumps(result)
+                )
+                db.add(report)
+                db.commit()
+
+            except Exception as e:
+                result = {"error": f"AI error: {str(e)}"}
+
+        return render_template(
+            "dashboard.html", user=session["user"], result=result
+        )
+
+    return render_template(
+        "dashboard.html", user=session["user"], result=result
+    )
+
+@app.route("/history")
+def history():
+    if "user" not in session:
+        return redirect("/login")
+
+    db = SessionLocal()
+    user = db.query(models.User).filter_by(email=session["user"]).first()
+    reports = db.query(models.Reports).filter_by(user_id=user.id).all()
+
+    pasesd_report = []
+    for r in reports:
+        try:
+            pasred_result = json.loads(r.result)
+        except:
+            pasred_result = []
+
+            pasred_result.append({
+                "resume":r.resume_text,
+                "result":pasred_result
+            })
+    return render_template(
+        "history.html", user=session["user"], reports=reports
+    )
+
 if __name__=="__main__":
     app.run(debug=True)
