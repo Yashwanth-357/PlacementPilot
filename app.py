@@ -93,20 +93,26 @@ def dashboard():
             try:
                 result = analyze_resume(resume_text, user_goal)
 
-                #save to db
-                db = SessionLocal()
-                user = db.query(models.User).filter_by(email=session["user"]).first()
-
-                report = models.Reports(
-                    user_id = user.id,
-                    resume_text = resume_text,
-                    result = json.dumps(result)
-                )
-                db.add(report)
-                db.commit()
+                # Only save to DB if analysis succeeded without errors
+                if not result.get("error"):
+                    db = SessionLocal()
+                    try:
+                        user = db.query(models.User).filter_by(email=session["user"]).first()
+                        if user:
+                            report = models.Reports(
+                                user_id = user.id,
+                                resume_text = resume_text,
+                                result = json.dumps(result)
+                            )
+                            db.add(report)
+                            db.commit()
+                    finally:
+                        db.close()
 
             except Exception as e:
                 result = {"error": f"AI error: {str(e)}"}
+        elif not resume_text:
+            result = {"error": "Please paste your resume text or upload a PDF / DOCX file."}
 
         return render_template(
             "dashboard.html", user=session["user"], result=result

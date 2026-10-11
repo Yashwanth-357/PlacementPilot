@@ -6,16 +6,15 @@
     <style>
         {% include "style.css" %}
     </style>
-    <!-- Add Google Fonts for modern typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>PlacementPilot | AI Career Platform</title>
 </head>
 <body>
    <header>
-    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="logo" style="font-weight: 700; font-size: 1.5rem; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;">
-            <span style="color: #00E5FF;">Placement</span><span style="color: #FF3DCE;">Pilot</span>
-        </div>
+    <div class="container header-inner">
+        <a href="/" class="logo">
+            <span>Placement</span><span class="highlight">Pilot</span>
+        </a>
         <nav>
             {% if session.get('user') %}
             <a href="/dashboard">Dashboard</a>
@@ -23,7 +22,7 @@
             <a href="/logout">Logout</a>
             {% else %}
             <a href="/login">Login</a>
-            <a href="/signup" style="background: rgba(0, 229, 255, 0.1); border-color: rgba(0, 229, 255, 0.3); color: #00E5FF;">Sign up</a>
+            <a href="/signup" class="nav-btn-primary">Sign Up</a>
             {% endif %}
         </nav>
     </div>
@@ -32,7 +31,7 @@
     {% block content %}{% endblock %}
    </main>
    <footer>
-    <p>@2026 PlacementPilot • AI-Powered Career Guidance</p>
+    <p>&copy; 2026 PlacementPilot &bull; AI Career Assistant</p>
    </footer>
 </body>
 </html>
